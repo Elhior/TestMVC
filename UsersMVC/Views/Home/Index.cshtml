@@ -1,0 +1,446 @@
+﻿@model IEnumerable<UsersMVC.Models.User>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<script src="https://cdn.jsdelivr.net/jqgrid/4.6.0/i18n/grid.locale-en.js"></script>
+<script src="https://cdn.jsdelivr.net/jqgrid/4.6.0/jquery.jqGrid.min.js"></script>
+
+
+<table id="jqGrid"></table>
+<div id="jqGridPager"></div>
+
+@{
+    WebGrid grid = new WebGrid(null, rowsPerPage: 5);
+    grid.Bind(@Model, autoSortAndPage: true, rowCount: 5);
+}
+
+@grid.GetHtml(tableStyle: "table table-bordered",
+ mode: WebGridPagerModes.All,
+ firstText: "<< First",
+ previousText: "< Prev",
+ nextText: "Next >",
+ lastText: "Last >>",
+    columns: grid.Columns(
+    grid.Column("Login", "Login"),
+    grid.Column("FirstName", "First name"),
+    grid.Column("LastName", "Last name"),
+    grid.Column("Phone", "Phone number"),
+    grid.Column("Email", "Email"),
+    grid.Column("Address", "Home address"),
+        grid.Column(header: "Action",
+             format: @<a href="#" onClick="editUser(@item.ID)">Edit</a>)
+//format: @<a href="#" onClick="editUser(@item.ID, @item.Login, @item.FirstName, @item.LastName, @item.Phone, @item.Email, @item.Address)">Edit</a>)
+))
+
+<button class="btn btn-primary" data-toggle="modal" data-target="#AddUserWindow" onclick="autoFocus('#AddUserWindow','#login')">
+    Add User
+</button>
+<button class="btn btn-primary" data-toggle="modal" data-target="#RemoveUserWindow" onclick="autoFocus('#RemoveUserWindow', '#r_login')">
+    Remove User
+</button>
+<div class="modal fade" id="AddUserWindow" tabindex="-1" role="dialog" aria-labelledby="addUserWindow"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    ×
+                </button>
+                <h4 class="row text-center" id="Header">
+                    Add User
+                </h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="padding-right: 100px;">
+
+                        <div id="Registration">
+                            <form role="form" class="form-horizontal">
+                                <div class="form-group">
+
+                                    <label for="login" class="col-sm-2 control-label">
+                                        Login
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="login" onchange="uniquenessValidation(this.value)" placeholder="Login" required maxlength="25" minlength="5"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="first-name" class="col-sm-2 control-label">
+                                        First name
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="first-name" placeholder="First name"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="last-name" class="col-sm-2 control-label">
+                                        Last name
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="last-name" placeholder="Last name" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone-number" class="col-sm-2 control-label">
+                                        Phone number
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="tel" class="form-control" id="phone-number" placeholder="Phone number" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email" class="col-sm-2 control-label">
+                                        Email
+                                    </label>
+                                    <div class="col-sm-10">
+                                    <input type="email" class="form-control" id="email" onchange="uniquenessValidation(this.value)" placeholder="Email" required/> <!--pattern="[a-zA-Z0-9!#$%&amp;'*+\/=?^_`{|}~.-]Html.Raw("")+[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*"-->
+                                        </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="home-address" class="col-sm-2 control-label">
+                                        Home address
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="home-address" placeholder="Home address" />
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                    </div>
+                                    <div class="col-sm-10">
+                                        <button type="button" class="btn btn-primary btn-sm" onclick="addUser()">
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="EditUserWindow" tabindex="-1" role="dialog" aria-labelledby="editUserWindow"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    ×
+                </button>
+                <h4 class="row text-center" id="edit_header">
+                    Edit
+                </h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="padding-right: 100px;">
+
+                        <div id="Editing">
+                            <form role="form" class="form-horizontal">
+                                <div align="left" class="form-group">
+                                        <label class="col-sm-2 control-label">
+                                           Your ID:
+                                        </label>
+                                    <label class="col-sm-10 control-label row text-center" id="edit_ID"></label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="login" class="col-sm-2 control-label">
+                                        Login
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="edit_login" placeholder="Login" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="first-name" class="col-sm-2 control-label">
+                                        First name
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="edit_first_name" placeholder="First name" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="last-name" class="col-sm-2 control-label">
+                                        Last name
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="edit_last_name" placeholder="Last name" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone-number" class="col-sm-2 control-label">
+                                        Phone number
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="tel" class="form-control" id="edit_phone_number" placeholder="Phone number" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email" class="col-sm-2 control-label">
+                                        Email
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="email" class="form-control" id="edit_email" placeholder="Email" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="home-address" class="col-sm-2 control-label">
+                                        Home address
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="edit_home_address" placeholder="Home address" />
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                    </div>
+                                    <div class="col-sm-10">
+                                        <button type="button" class="btn btn-primary btn-sm" onclick="updateUser()">
+                                            Edit
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="RemoveUserWindow" tabindex="-1" role="dialog" aria-labelledby="removeUserWindow"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    ×
+                </button>
+                <h4 class="row text-center" id="Header">
+                    Remove User
+                </h4>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="padding-right: 100px;">
+
+                        <div id="Deleting">
+                            <form role="form" class="form-horizontal">
+                                <div class="form-group">
+                                    <label for="login" class="col-sm-2 control-label">
+                                        Login
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="r_login" placeholder="Login"/>
+                                    </div>
+                                </div>     
+
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                    </div>
+                                    <div class="col-sm-10">
+                                        <button type="button" class="btn btn-primary btn-sm" onclick="removeUser()" data-dismiss="modal">
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function autoFocus(model, field) {
+        $(model).on('shown.bs.modal', function () {
+            $(field).focus();
+        });
+    }
+    function validate(vLogin, vEmail) {
+        var validLogin = document.getElementById(vLogin);
+        var validEmail = document.getElementById(vEmail);
+        if (validLogin.checkValidity() == false) {
+            alert('Login must be 5-25 characters.');
+            return false;
+        }
+        if (validEmail.checkValidity() == true) {
+            return true;
+        }
+        else {
+            alert('Invalid email.');
+            return false;
+        }
+    }
+
+    function uniquenessValidation(validatedValue) {
+        var resp;
+       // alert(validatedValue + "start");
+        $.ajax({
+            type: "GET",
+            url: "/Home/UniquenessValidation?validatedValue=" + validatedValue,
+            dataType: "json",
+            success: function (response) {
+                resp = response;
+            },
+        });
+        /*alert(resp + "resp");
+        if (resp == "false") {
+            alert(resp + " is already registered.");
+            return false;
+        }
+        return true;*/
+    }
+
+    function addUser() {
+       // if (validate('login', 'email')) {//&& uniquenessValidation($("#login").val()) && uniquenessValidation($("#email").val()
+
+            var login = $("#login").val();
+            var firstName = $("#first-name").val();
+            var lastName = $("#last-name").val();
+            var phoneNumber = $("#phone-number").val();
+            var email = $("#email").val();
+            var address = $("#home-address").val();
+
+            var person = {
+                Login: login,
+                FirstName: firstName,
+                LastName: lastName,
+                Phone: phoneNumber,
+                Email: email,
+                Address: address
+            };
+            alert(person.Login + person.Email + person.Phone);
+            $.ajax({
+                type: "POST",
+                url: "/Home/AddUsers",
+                //   dataType: "json",
+                data: person,
+                success: function (msg) {
+                    $('#AddUserWindow').modal('toggle');
+                },
+                error: function(msg) { 
+                    alert(msg);
+                }     
+            });
+       // }
+    }
+
+    function removeUser() {
+        var login = $("#r_login").val();
+        var firstName;
+        var lastName;
+        var phoneNumber;
+        var email;
+        var address;
+
+        var person = {
+            Login: login,
+            FirstName: firstName,
+            LastName: lastName,
+            Phone: phoneNumber,
+            Email: email,
+            Address: address
+        };
+        
+        $.ajax({
+            type: "POST",
+            url: "/Home/RemoveUser",
+            dataType: "json",
+            success: function (msg) {
+
+            },
+
+            data: person
+        });
+    }
+
+    function editUser(id) {
+        $('#EditUserWindow').modal('show');
+        autoFocus('#EditUserWindow', '#edit_login')
+        document.getElementById("edit_ID").innerHTML = id;
+
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetUser?id=" + id,
+            dataType: "json",
+            
+            success: function (response) {
+                $("#edit_login").val(response.Login);
+                $("#edit_first_name").val(response.FirstName);
+                $("#edit_last_name").val(response.LastName);
+                $("#edit_phone_number").val(response.Phone);
+                $("#edit_email").val(response.Email);
+                $("#edit_home_address").val(response.Address);
+            },
+        });   
+    }
+
+    function updateUser() {
+        if (validate('edit_login', 'edit_email')) {
+            $('#EditUserWindow').modal('toggle');
+
+            var id = document.getElementById("edit_ID").innerHTML;
+            var login = $("#edit_login").val();
+            var firstName = $("#edit_first_name").val();
+            var lastName = $("#edit_last_name").val();
+            var phoneNumber = $("#edit_phone_number").val();
+            var email = $("#edit_email").val();
+            var address = $("#edit_home_address").val();
+
+            var person = {
+                ID: id,
+                Login: login,
+                FirstName: firstName,
+                LastName: lastName,
+                Phone: phoneNumber,
+                Email: email,
+                Address: address
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Home/UpdateUsers",
+                dataType: "json",
+                success: function (msg) {
+
+                },
+
+                data: person
+            });
+        }
+    }
+</script>
+
+<style>
+    input:invalid {
+        border: 1px solid red;
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAeVJREFUeNqkU01oE1EQ/mazSTdRmqSxLVSJVKU9RYoHD8WfHr16kh5EFA8eSy6hXrwUPBSKZ6E9V1CU4tGf0DZWDEQrGkhprRDbCvlpavan3ezu+LLSUnADLZnHwHvzmJlvvpkhZkY7IqFNaTuAfPhhP/8Uo87SGSaDsP27hgYM/lUpy6lHdqsAtM+BPfvqKp3ufYKwcgmWCug6oKmrrG3PoaqngWjdd/922hOBs5C/jJA6x7AiUt8VYVUAVQXXShfIqCYRMZO8/N1N+B8H1sOUwivpSUSVCJ2MAjtVwBAIdv+AQkHQqbOgc+fBvorjyQENDcch16/BtkQdAlC4E6jrYHGgGU18Io3gmhzJuwub6/fQJYNi/YBpCifhbDaAPXFvCBVxXbvfbNGFeN8DkjogWAd8DljV3KRutcEAeHMN/HXZ4p9bhncJHCyhNx52R0Kv/XNuQvYBnM+CP7xddXL5KaJw0TMAF8qjnMvegeK/SLHubhpKDKIrJDlvXoMX3y9xcSMZyBQ+tpyk5hzsa2Ns7LGdfWdbL6fZvHn92d7dgROH/730YBLtiZmEdGPkFnhX4kxmjVe2xgPfCtrRd6GHRtEh9zsL8xVe+pwSzj+OtwvletZZ/wLeKD71L+ZeHHWZ/gowABkp7AwwnEjFAAAAAElFTkSuQmCC);
+        background-position: right top;
+        background-repeat: no-repeat;
+    }
+    input:valid {
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAepJREFUeNrEk79PFEEUx9/uDDd7v/AAQQnEQokmJCRGwc7/QeM/YGVxsZJQYI/EhCChICYmUJigNBSGzobQaI5SaYRw6imne0d2D/bYmZ3dGd+YQKEHYiyc5GUyb3Y+77vfeWNpreFfhvXfAWAAJtbKi7dff1rWK9vPHx3mThP2Iaipk5EzTg8Qmru38H7izmkFHAF4WH1R52654PR0Oamzj2dKxYt/Bbg1OPZuY3d9aU82VGem/5LtnJscLxWzfzRxaWNqWJP0XUadIbSzu5DuvUJpzq7sfYBKsP1GJeLB+PWpt8cCXm4+2+zLXx4guKiLXWA2Nc5ChOuacMEPv20FkT+dIawyenVi5VcAbcigWzXLeNiDRCdwId0LFm5IUMBIBgrp8wOEsFlfeCGm23/zoBZWn9a4C314A1nCoM1OAVccuGyCkPs/P+pIdVIOkG9pIh6YlyqCrwhRKD3GygK9PUBImIQQxRi4b2O+JcCLg8+e8NZiLVEygwCrWpYF0jQJziYU/ho2TUuCPTn8hHcQNuZy1/94sAMOzQHDeqaij7Cd8Dt8CatGhX3iWxgtFW/m29pnUjR7TSQcRCIAVW1FSr6KAVYdi+5Pj8yunviYHq7f72po3Y9dbi7CxzDO1+duzCXH9cEPAQYAhJELY/AqBtwAAAAASUVORK5CYII=);
+        background-position: right top;
+        background-repeat: no-repeat;
+    }
+</style>
