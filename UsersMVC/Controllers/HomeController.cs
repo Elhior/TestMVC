@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 using UsersMVC.DAL;
 using UsersMVC.Models;
 using System.Data.Entity.Migrations;
+//using AutoMapperApp.Models;
+using AutoMapper;
 using Ninject;
 
 namespace UsersMVC.Controllers
@@ -24,8 +26,12 @@ namespace UsersMVC.Controllers
         
         public ActionResult Index()
         {
+            Mapper.Initialize(cfg => cfg.CreateMap<User, IndexUserViewModel>());
+            var users =
+                Mapper.Map<IEnumerable<User>, List<IndexUserViewModel>>(dbContext.GetUserList());
             //return View(dbContext.User);
-            return View(dbContext.GetUserList());
+            //return View(dbContext.GetUserList());
+            return View(users);
         }
         
         [HttpPost]
@@ -42,17 +48,21 @@ namespace UsersMVC.Controllers
         }
 
         [HttpPost]
-        public void RemoveUser(User user)
+        public void RemoveUser(string login, string pasword)
         {
             /* User userToRemove = dbContext.User.First(n => n.Login == user.Login);
-             dbContext.User.Remove(userToRemove);
-             dbContext.SaveChanges();*/
-             dbContext.Delete(user.Login);
-             dbContext.Save();
+                dbContext.User.Remove(userToRemove);
+                dbContext.SaveChanges();*/
+            User userToRemove = dbContext.GetUserList().First(n => n.Login == login);
+            if (userToRemove.Password == pasword)
+            {
+                dbContext.Delete(userToRemove.ID);
+                dbContext.Save();
+            }
         }
 
         [HttpGet]
-        public String GetUser(long id)
+        public string GetUser(long id)
         {
             /* User userToEdit = dbContext.User.First(n => n.ID == (int)id);
              string json = JsonConvert.SerializeObject(userToEdit);
