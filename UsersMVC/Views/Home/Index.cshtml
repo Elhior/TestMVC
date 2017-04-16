@@ -1,4 +1,4 @@
-﻿@model IEnumerable<UsersMVC.Models.User>
+﻿@model IEnumerable<UsersMVC.Models.IndexUserViewModel>
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -36,7 +36,7 @@
 <button class="btn btn-primary" data-toggle="modal" data-target="#AddUserWindow" onclick="autoFocus('#AddUserWindow','#login')">
     Add User
 </button>
-<button class="btn btn-primary" data-toggle="modal" data-target="#RemoveUserWindow" onclick="autoFocus('#RemoveUserWindow', '#r_login')">
+<button class="btn btn-primary" data-toggle="modal" data-target="#RemoveUserWindow" onclick="autoFocus('#RemoveUserWindow', '#login_remove')">
     Remove User
 </button>
 <div class="modal fade" id="AddUserWindow" tabindex="-1" role="dialog" aria-labelledby="addUserWindow"
@@ -107,6 +107,14 @@
                                     </label>
                                     <div class="col-sm-10">
                                         <input type="text" class="form-control" id="home-address" placeholder="Home address" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="passsword" class="col-sm-2 control-label">
+                                        Password
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="password" class="form-control" id="password" placeholder="Password" />
                                     </div>
                                 </div>
 
@@ -249,7 +257,15 @@
                                         Login
                                     </label>
                                     <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="r_login" placeholder="Login"/>
+                                        <input type="text" class="form-control" id="login_remove" placeholder="Login"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="passsword" class="col-sm-2 control-label">
+                                        Password
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input type="password" class="form-control" id="password_remove" placeholder="Password" />
                                     </div>
                                 </div>     
 
@@ -321,6 +337,7 @@
             var phoneNumber = $("#phone-number").val();
             var email = $("#email").val();
             var address = $("#home-address").val();
+            var password = $("#password").val();
 
             var person = {
                 Login: login,
@@ -328,9 +345,10 @@
                 LastName: lastName,
                 Phone: phoneNumber,
                 Email: email,
-                Address: address
+                Address: address,
+                Password: password
             };
-            alert(person.Login + person.Email + person.Phone);
+           
             $.ajax({
                 type: "POST",
                 url: "/Home/AddUsers",
@@ -338,40 +356,26 @@
                 data: person,
                 success: function (msg) {
                     $('#AddUserWindow').modal('toggle');
+                    alert("Added successful.");
                 },
                 error: function(msg) { 
-                    alert(msg);
+                    alert(msg+"Error.");
                 }     
             });
        // }
     }
 
-    function removeUser() {
-        var login = $("#r_login").val();
-        var firstName;
-        var lastName;
-        var phoneNumber;
-        var email;
-        var address;
-
-        var person = {
-            Login: login,
-            FirstName: firstName,
-            LastName: lastName,
-            Phone: phoneNumber,
-            Email: email,
-            Address: address
-        };
-        
+    function removeUser() {        
         $.ajax({
             type: "POST",
             url: "/Home/RemoveUser",
-            dataType: "json",
+            data: {login:$("#login_remove").val(), pasword:$("#password_remove").val()},
             success: function (msg) {
-
+                alert("Removed successful.");
             },
-
-            data: person
+            error: function(msg) { 
+                alert(msg+"Error.");
+            }
         });
     }
 
