@@ -40,9 +40,9 @@ namespace UsersMVC.DAL
             db.User.AddOrUpdate(h => h.ID, user);
         }
 
-        public void Delete(string login)
+        public void Delete(long id)
         {
-            User userToRemove = db.User.First(n => n.Login == login);
+            User userToRemove = db.User.First(n => n.ID == id);
             if (userToRemove != null)
                 db.User.Remove(userToRemove);
         }
