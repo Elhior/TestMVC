@@ -12,7 +12,7 @@ namespace UsersMVC.DAL
         T GetUser(long id); 
         void Create(T item); 
         void Update(T item); 
-        void Delete(string login); 
+        void Delete(long id); 
         void Save(); 
     }
 }
