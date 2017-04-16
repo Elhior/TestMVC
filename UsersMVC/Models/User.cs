@@ -14,7 +14,7 @@ namespace UsersMVC.Models
         {
 
         }
-
+        /*
         public User(string lo)
         {
             Login = lo;
@@ -24,7 +24,7 @@ namespace UsersMVC.Models
             Address = lo;
             Email = lo;
         }
-
+        */
         [Key]
         [Column("id")]
         public long ID
@@ -80,6 +80,15 @@ namespace UsersMVC.Models
         //[Required(ErrorMessage = "Please enter your home address.")]
         [Column("home_address")]
         public string Address
+        {
+            get;
+            set;
+        }
+
+        [Column("password")]
+        [Required(ErrorMessage = "Please enter password.")]
+        [MaxLength(15, ErrorMessage = "Password must be 5-15 characters."), MinLength(5, ErrorMessage = "Password must be 5-15 characters.")]
+        public string Password
         {
             get;
             set;
