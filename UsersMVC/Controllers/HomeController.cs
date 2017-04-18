@@ -35,7 +35,7 @@ namespace UsersMVC.Controllers
         }
         
         [HttpPost]
-        public void AddUsers(User user)
+        public void AddUsers(AddUserViewModel user)
         {
             // dbContext.User.Add(user);
             // dbContext.SaveChanges();
@@ -43,7 +43,14 @@ namespace UsersMVC.Controllers
             dbContext1.User.Add(user);
             dbContext1.SaveChanges();
             */
-             dbContext.Create(user);
+
+            Mapper.Initialize(cfg => cfg.CreateMap<AddUserViewModel, User>());
+                 /*  .ForMember("Name", opt => opt.MapFrom(c => c.FirstName + " " + c.LastName))
+                   .ForMember("Email", opt => opt.MapFrom(src => src.Login)));*/
+            // Выполняем сопоставление
+            User user1 = Mapper.Map<AddUserViewModel, User>(user);
+
+            dbContext.Create(user1);
              dbContext.Save();
         }
 
