@@ -55,16 +55,25 @@ namespace UsersMVC.Controllers
         }
 
         [HttpPost]
-        public void RemoveUser(string login, string pasword)
+        public string RemoveUser(string login, string pasword)
         {
             /* User userToRemove = dbContext.User.First(n => n.Login == user.Login);
                 dbContext.User.Remove(userToRemove);
                 dbContext.SaveChanges();*/
-            User userToRemove = dbContext.GetUserList().First(n => n.Login == login);
-            if (userToRemove.Password == pasword)
+            try
             {
-                dbContext.Delete(userToRemove.ID);
-                dbContext.Save();
+                User userToRemove = dbContext.GetUserList().First(n => n.Login == login);
+                if (userToRemove.Password == pasword)
+                {
+                    dbContext.Delete(userToRemove.ID);
+                    dbContext.Save();
+                    return "Removed.";
+                }
+                return "Wrong password.";
+            }
+            catch(Exception)
+            {
+                return "User not found.";
             }
         }
 
@@ -78,19 +87,25 @@ namespace UsersMVC.Controllers
         }
 
         [HttpPost]
-        public void UpdateUsers(User userToUpdate)
+        public string UpdateUsers(User userToUpdate)
         {
             /*dbContext.User.AddOrUpdate(h => h.ID, userToUpdate);
             dbContext.SaveChanges();*/
-            dbContext.Update(userToUpdate);
-            dbContext.Save();
+            if (userToUpdate.Password == dbContext.GetUser(userToUpdate.ID).Password)
+            {
+                dbContext.Update(userToUpdate);
+                dbContext.Save();
+                return "Updated";
+            }
+            else
+                return "Wrong password.";
         }
 
         [HttpGet]
         public string UniquenessValidation(string validatedValue)
         {
             bool isEmail = validatedValue.Contains("@");
-            //foreach(User user in dbContext.User)
+
             foreach (User user in dbContext.GetUserList())
             {
                 if(user.Login== validatedValue && !isEmail)
