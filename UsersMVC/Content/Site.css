@@ -95,15 +95,4 @@ input:valid {
 {
     background-color: #EAF2D3;
     padding: 3px 7px 2px;
-}/*
-.modal {
-       width: 1001px;
-       height: 100px;
-       margin:0 auto;
-       display:table;
-       position: absolute;
-       left: 0;
-       right:0;
-       top: 40%; 
-       border:1px solid;
-    }*/
+}
