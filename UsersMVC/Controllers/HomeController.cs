@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using UsersMVC.DAL;
 using UsersMVC.Models;
 using System.Data.Entity.Migrations;
-//using AutoMapperApp.Models;
+using System.Data.Entity.Validation;
 using AutoMapper;
 using Ninject;
 
@@ -35,7 +35,7 @@ namespace UsersMVC.Controllers
         }
         
         [HttpPost]
-        public void AddUsers(AddUserViewModel user)
+        public string AddUsers(AddUserViewModel user)
         {
             // dbContext.User.Add(user);
             // dbContext.SaveChanges();
@@ -43,15 +43,37 @@ namespace UsersMVC.Controllers
             dbContext1.User.Add(user);
             dbContext1.SaveChanges();
             */
+            UserExceptions userExceptions = new UserExceptions();
+            userExceptions.isEmpty = true;
+            try
+            {
+                Mapper.Initialize(cfg => cfg.CreateMap<AddUserViewModel, User>());
+                /*  .ForMember("Name", opt => opt.MapFrom(c => c.FirstName + " " + c.LastName))
+                  .ForMember("Email", opt => opt.MapFrom(src => src.Login)));*/
+                // Выполняем сопоставление
+                User user1 = Mapper.Map<AddUserViewModel, User>(user);
 
-            Mapper.Initialize(cfg => cfg.CreateMap<AddUserViewModel, User>());
-                 /*  .ForMember("Name", opt => opt.MapFrom(c => c.FirstName + " " + c.LastName))
-                   .ForMember("Email", opt => opt.MapFrom(src => src.Login)));*/
-            // Выполняем сопоставление
-            User user1 = Mapper.Map<AddUserViewModel, User>(user);
+                dbContext.Create(user1);
+                dbContext.Save();
+                return JsonConvert.SerializeObject(userExceptions);
+            }
+            catch (DbEntityValidationException validationExcaption)
+            {
+                userExceptions.isEmpty = false;
 
-            dbContext.Create(user1);
-             dbContext.Save();
+                foreach (DbEntityValidationResult entityValidationResult in validationExcaption.EntityValidationErrors) {
+                    foreach (DbValidationError validationError in entityValidationResult.ValidationErrors)
+                    {
+                        if (validationError.PropertyName == "Login")
+                            userExceptions.LoginException = validationError.ErrorMessage;
+                        if (validationError.PropertyName == "Email")
+                            userExceptions.EmailException = validationError.ErrorMessage;
+                        if (validationError.PropertyName == "Password")
+                            userExceptions.PasswordException = validationError.ErrorMessage;
+                    }
+                }
+                return JsonConvert.SerializeObject(userExceptions);
+            }
         }
 
         [HttpPost]
