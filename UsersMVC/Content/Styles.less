@@ -2,8 +2,7 @@
 	min-height: 100%;
 }
 body {
-
-    margin-top: 30px;
+    margin-top: 20px;
     margin-bottom: 30px;
 }
 
@@ -21,13 +20,15 @@ textarea {
     color: red;
     font-family: 'Times New Roman';
 }
+@header-footer-font: Times New Roman;
+@header-footer-width: 100%;
 .header {
     position: absolute;
     top:0;
-    width: 100%;
+    width: @header-footer-width;
     height: 20px;
     background-color: lavender;
-    font-family: 'Times New Roman';
+    font-family: @header-footer-font;
     font-weight: bold;
     font-size: 120%;
     text-align: center;
@@ -35,9 +36,10 @@ textarea {
 }
 
 .footer {
+    font-family: @header-footer-font;
     position: absolute;
     bottom: 0;
-    width: 100%;
+    width: @header-footer-width;
     height: 30px;
     background-color: skyblue;
     text-align: left;
