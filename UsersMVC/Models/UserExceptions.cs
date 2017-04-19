@@ -6,8 +6,14 @@ using System.Web;
 namespace UsersMVC.Models
 {
     public class UserExceptions
-    {
+    {/*
+        public UserExceptions()
+        {
+            isEmpty = true;
+        }
+        */
         public bool isEmpty;
+
         public string LoginException
         {
             get;
