@@ -63,8 +63,12 @@
                                     <label for="login" class="col-sm-2 control-label">
                                         Login
                                     </label>
-                                    <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="login" onchange="uniquenessValidation(this.value)" placeholder="Login" required maxlength="25" minlength="5"/>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="login" onchange="uniquenessValidation(this.id)" placeholder="Login" required maxlength="25" minlength="5"/>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="validationmessage" id="login_validation_message">
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -95,9 +99,13 @@
                                     <label for="email" class="col-sm-2 control-label">
                                         Email
                                     </label>
-                                    <div class="col-sm-10">
-                                    <input type="email" class="form-control" id="email" onchange="uniquenessValidation(this.value)" placeholder="Email" required/>
-                                        </div>
+                                    <div class="col-sm-7">
+                                        <input type="email" class="form-control" id="email" onchange="uniquenessValidation(this.id)" placeholder="Email" required/>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="validationmessage" id="email_validation_message">
+                                        </label>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="home-address" class="col-sm-2 control-label">
@@ -111,8 +119,12 @@
                                     <label for="passsword" class="col-sm-2 control-label">
                                         Password
                                     </label>
-                                    <div class="col-sm-10">
-                                        <input type="password" class="form-control" id="password" placeholder="Password" />
+                                    <div class="col-sm-7">
+                                        <input type="password" class="form-control" id="password" placeholder="Password" required maxlength="15" minlength="5"/>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="validationmessage" id="password_validation_message">
+                                        </label>
                                     </div>
                                 </div>
 
@@ -159,8 +171,12 @@
                                     <label for="login" class="col-sm-2 control-label">
                                         Login
                                     </label>
-                                    <div class="col-sm-10">
-                                        <input type="text" class="form-control" id="edit_login" onchange="uniquenessValidation(this.value)" placeholder="Login" required maxlength="25" minlength="5"/>
+                                    <div class="col-sm-7">
+                                        <input type="text" class="form-control" id="edit_login" onchange="uniquenessValidation(this.id)" placeholder="Login" required maxlength="25" minlength="5"/>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="validationmessage" id="edit_login_validation_message">
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -191,8 +207,12 @@
                                     <label for="email" class="col-sm-2 control-label">
                                         Email
                                     </label>
-                                    <div class="col-sm-10">
-                                        <input type="email" class="form-control" id="edit_email" onchange="uniquenessValidation(this.value)" placeholder="Email" required/>
+                                    <div class="col-sm-7">
+                                        <input type="email" class="form-control" id="edit_email" onchange="uniquenessValidation(this.id)"  placeholder="Email" required/>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="validationmessage" id="edit_email_validation_message">
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -272,7 +292,7 @@
                                     <div class="col-sm-2">
                                     </div>
                                     <div class="col-sm-10">
-                                        <button type="button" class="btn btn-primary btn-sm" onclick="removeUser()" data-dismiss="modal">
+                                        <button type="button" class="btn btn-primary btn-sm" onclick="removeUser()">
                                             Remove
                                         </button>
                                     </div>
@@ -293,7 +313,7 @@
         });
     }
 
-    function validate(vLogin, vEmail) {
+    function validate(validatedField) {
         var validLogin = document.getElementById(vLogin);
         var validEmail = document.getElementById(vEmail);
         if (validLogin.checkValidity() == false) {
@@ -309,14 +329,18 @@
         }
     }
 
-    function uniquenessValidation(validatedValue) {
+    function uniquenessValidation(validatedField) {
+        var validatedValue = document.getElementById(validatedField).value;
+
         $.ajax({
             type: "GET",
             url: "/Home/UniquenessValidation?validatedValue=" + validatedValue,
             dataType: "json",
             success: function (response) {
                 if (response == false)
-                    alert("Already reserved!");
+                    document.getElementById(validatedField + "_validation_message").innerHTML = "Already reserved!";
+                else
+                    document.getElementById(validatedField + "_validation_message").innerHTML = "Free.";
             },
         });
     }
@@ -346,12 +370,23 @@
                 type: "POST",
                 url: "/Home/AddUsers",
                 data: person,
+                dataType: "json",
                 success: function (msg) {
-                    $('#AddUserWindow').modal('toggle');
-                    alert("Added successful.");
+                    if (msg.isEmpty == true) {
+                        alert("Added successful.");
+                        $('#AddUserWindow').modal('toggle');
+                    }
+                    else {
+                        if (msg.LoginException != null)
+                            document.getElementById("login_validation_message").innerHTML = msg.LoginException;
+                        if (msg.EmailException != null)
+                            document.getElementById("email_validation_message").innerHTML = msg.EmailException;
+                        if (msg.PasswordException != null)
+                            document.getElementById("password_validation_message").innerHTML = msg.PasswordException;
+                    }
                 },
-                error: function(msg) { 
-                    alert(msg+"Error.");
+                error: function (msg) {
+                    alert(msg);
                 }     
             });
        // }
@@ -362,8 +397,10 @@
             type: "POST",
             url: "/Home/RemoveUser",
             data: {login:$("#login_remove").val(), pasword:$("#password_remove").val()},
-            success: function (msg) {
-                alert(msg);             
+            success: function (msg) {                
+                alert(msg);
+                if (msg == "Removed.")
+                    $('#RemoveUserWindow').modal('toggle');
             },
             error: function(msg) { 
                 alert(msg);
