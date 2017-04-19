@@ -14,17 +14,7 @@ namespace UsersMVC.Models
         {
 
         }
-        /*
-        public User(string lo)
-        {
-            Login = lo;
-            FirstName = lo;
-            LastName = lo;
-            Phone = lo;
-            Address = lo;
-            Email = lo;
-        }
-        */
+
         [Key]
         [Column("id")]
         public long ID
@@ -69,7 +59,8 @@ namespace UsersMVC.Models
         }
 
         [Required (ErrorMessage = "Please enter your Email.")]
-       // [Index(IsUnique = true)]
+        // [Index(IsUnique = true)]
+        [EmailAddress(ErrorMessage = "Invalid email address.")]
         [Column("email")]
         public string Email
         {
@@ -85,6 +76,7 @@ namespace UsersMVC.Models
             set;
         }
 
+        //[DataType(DataType.Password)]
         [Column("password")]
         [Required(ErrorMessage = "Please enter password.")]
         [MaxLength(15, ErrorMessage = "Password must be 5-15 characters."), MinLength(5, ErrorMessage = "Password must be 5-15 characters.")]
