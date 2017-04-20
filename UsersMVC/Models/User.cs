@@ -33,7 +33,6 @@ namespace UsersMVC.Models
             set;
         }
 
-        //   [Required (ErrorMessage = "Please enter your first name.")]
         [Column("first_name")]
         public string FirstName
         {
@@ -41,7 +40,6 @@ namespace UsersMVC.Models
             set;
         }
 
-        //   [Required(ErrorMessage = "Please enter your last name.")]
         [Column("last_name")]
         public string LastName
         {
@@ -50,7 +48,6 @@ namespace UsersMVC.Models
 
         }
 
-        // [Required(ErrorMessage = "Please enter your phone number.")]
         [Column("phone_number")]
         public string Phone
         {
@@ -58,8 +55,9 @@ namespace UsersMVC.Models
             set;
         }
 
+        [Index(IsUnique = true)]
+        [StringLength(450)]
         [Required (ErrorMessage = "Please enter your Email.")]
-        // [Index(IsUnique = true)]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
         [Column("email")]
         public string Email
@@ -68,7 +66,6 @@ namespace UsersMVC.Models
             set;
         }
 
-        //[Required(ErrorMessage = "Please enter your home address.")]
         [Column("home_address")]
         public string Address
         {
@@ -76,7 +73,6 @@ namespace UsersMVC.Models
             set;
         }
 
-        //[DataType(DataType.Password)]
         [Column("password")]
         [Required(ErrorMessage = "Please enter password.")]
         [MaxLength(15, ErrorMessage = "Password must be 5-15 characters."), MinLength(5, ErrorMessage = "Password must be 5-15 characters.")]
