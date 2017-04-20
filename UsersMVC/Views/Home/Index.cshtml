@@ -1,17 +1,15 @@
-﻿@model IEnumerable<UsersMVC.Models.IndexUserViewModel>
+﻿<script src="~/Scripts/UserScript.js"></script>
+@model IEnumerable<UsersMVC.Models.IndexUserViewModel>
 @{
     ViewData["Title"] = "Home Page";
 }
-
-<script src="https://cdn.jsdelivr.net/jqgrid/4.6.0/i18n/grid.locale-en.js"></script>
-<script src="https://cdn.jsdelivr.net/jqgrid/4.6.0/jquery.jqGrid.min.js"></script>
 
 @{
     WebGrid grid = new WebGrid(null, rowsPerPage: 5);
     grid.Bind(@Model, autoSortAndPage: true, rowCount: 5);
 }
 
-@grid.GetHtml(/*tableStyle: "table table-bordered",*/"webgrid-table",
+@grid.GetHtml(tableStyle: "webgrid-table",
         headerStyle: "webgrid-header",
         footerStyle: "webgrid-footer",
         alternatingRowStyle: "webgrid-alternating-row",
@@ -38,8 +36,7 @@
 <button class="btn btn-primary" data-toggle="modal" data-target="#RemoveUserWindow" onclick="autoFocus('#RemoveUserWindow', '#login_remove')">
     Remove User
 </button>
-<div class="modal fade" id="AddUserWindow" tabindex="-1" role="dialog" aria-labelledby="addUserWindow"
-     aria-hidden="true">
+<div class="modal fade" id="AddUserWindow" tabindex="-1" role="dialog" aria-labelledby="addUserWindow" aria-hidden="true">
 
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -305,164 +302,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    function autoFocus(model, field) {
-        $(model).on('shown.bs.modal', function () {
-            $(field).focus();
-        });
-    }
-
-    function validate(validatedField) {
-        var validLogin = document.getElementById(vLogin);
-        var validEmail = document.getElementById(vEmail);
-        if (validLogin.checkValidity() == false) {
-            alert('Login must be 5-25 characters.');
-            return false;
-        }
-        if (validEmail.checkValidity() == true) {
-            return true;
-        }
-        else {
-            alert('Invalid email.');
-            return false;
-        }
-    }
-
-    function uniquenessValidation(validatedField) {
-        var validatedValue = document.getElementById(validatedField).value;
-
-        $.ajax({
-            type: "GET",
-            url: "/Home/UniquenessValidation?validatedValue=" + validatedValue,
-            dataType: "json",
-            success: function (response) {
-                if (response == false)
-                    document.getElementById(validatedField + "_validation_message").innerHTML = "Already reserved!";
-                else
-                    document.getElementById(validatedField + "_validation_message").innerHTML = "Free.";
-            },
-        });
-    }
-
-    function addUser() {
-       // if (validate('login', 'email')) {//&& uniquenessValidation($("#login").val()) && uniquenessValidation($("#email").val()
-
-            var login = $("#login").val();
-            var firstName = $("#first-name").val();
-            var lastName = $("#last-name").val();
-            var phoneNumber = $("#phone-number").val();
-            var email = $("#email").val();
-            var address = $("#home-address").val();
-            var password = $("#password").val();
-
-            var person = {
-                Login: login,
-                FirstName: firstName,
-                LastName: lastName,
-                Phone: phoneNumber,
-                Email: email,
-                Address: address,
-                Password: password
-            };
-           
-            $.ajax({
-                type: "POST",
-                url: "/Home/AddUsers",
-                data: person,
-                dataType: "json",
-                success: function (msg) {
-                    if (msg.isEmpty == true) {
-                        alert("Added successful.");
-                        $('#AddUserWindow').modal('toggle');
-                    }
-                    else {
-                        if (msg.LoginException != null)
-                            document.getElementById("login_validation_message").innerHTML = msg.LoginException;
-                        if (msg.EmailException != null)
-                            document.getElementById("email_validation_message").innerHTML = msg.EmailException;
-                        if (msg.PasswordException != null)
-                            document.getElementById("password_validation_message").innerHTML = msg.PasswordException;
-                    }
-                },
-                error: function (msg) {
-                    alert(msg);
-                }     
-            });
-       // }
-    }
-
-    function removeUser() {        
-        $.ajax({
-            type: "POST",
-            url: "/Home/RemoveUser",
-            data: {login:$("#login_remove").val(), pasword:$("#password_remove").val()},
-            success: function (msg) {                
-                alert(msg);
-                if (msg == "Removed.")
-                    $('#RemoveUserWindow').modal('toggle');
-            },
-            error: function(msg) { 
-                alert(msg);
-            }
-        });
-    }
-
-    function editUser(id) {
-        $('#EditUserWindow').modal('show');
-        autoFocus('#EditUserWindow', '#edit_login')
-        document.getElementById("edit_header").innerHTML = "Edit ID:"+id;
-
-        $.ajax({
-            type: "GET",
-            url: "/Home/GetUser?id=" + id,
-            dataType: "json",
-            
-            success: function (response) {
-                $("#edit_login").val(response.Login);
-                $("#edit_first_name").val(response.FirstName);
-                $("#edit_last_name").val(response.LastName);
-                $("#edit_phone_number").val(response.Phone);
-                $("#edit_email").val(response.Email);
-                $("#edit_home_address").val(response.Address);
-            },
-        });   
-    }
-
-    function updateUser() {
-        if (validate('edit_login', 'edit_email')) {
-            $('#EditUserWindow').modal('toggle');
-
-            var id = document.getElementById("edit_header").innerHTML.split(':')[1];
-            var login = $("#edit_login").val();
-            var firstName = $("#edit_first_name").val();
-            var lastName = $("#edit_last_name").val();
-            var phoneNumber = $("#edit_phone_number").val();
-            var email = $("#edit_email").val();
-            var address = $("#edit_home_address").val();
-            var password = $("#edit_password").val();
-
-            var person = {
-                ID: id,
-                Login: login,
-                FirstName: firstName,
-                LastName: lastName,
-                Phone: phoneNumber,
-                Email: email,
-                Address: address,
-                Password:password
-            };
-            $.ajax({
-                type: "POST",
-                url: "/Home/UpdateUsers",
-                data: person,
-                success: function (msg) {
-                    alert(msg);
-                },
-                error: function(msg) { 
-                alert(msg);
-            }
-            });
-        }
-    }
-</script>
