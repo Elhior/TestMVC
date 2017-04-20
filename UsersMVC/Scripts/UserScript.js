@@ -135,7 +135,8 @@ function updateUser() {
                 alert(msg);
                 location.reload();
             }
-            alert(msg);
+            else
+                alert(msg);
         },
         error: function (msg) {
             alert(msg);
