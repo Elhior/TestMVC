@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using UsersMVC.DAL;
 using UsersMVC.Models;
-using System.Data.Entity.Migrations;
 using System.Data.Entity.Validation;
 using System.Data.Entity.Infrastructure;
 using AutoMapper;
-using Ninject;
 
 namespace UsersMVC.Controllers
 {
