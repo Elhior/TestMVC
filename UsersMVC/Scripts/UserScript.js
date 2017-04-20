@@ -4,22 +4,6 @@
     });
 }
 
-function validate(validatedField) {
-    var validLogin = document.getElementById(vLogin);
-    var validEmail = document.getElementById(vEmail);
-    if (validLogin.checkValidity() == false) {
-        alert('Login must be 5-25 characters.');
-        return false;
-    }
-    if (validEmail.checkValidity() == true) {
-        return true;
-    }
-    else {
-        alert('Invalid email.');
-        return false;
-    }
-}
-
 function uniquenessValidation(validatedField) {
     var validatedValue = document.getElementById(validatedField).value;
 
