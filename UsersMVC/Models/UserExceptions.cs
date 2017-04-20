@@ -6,13 +6,15 @@ using System.Web;
 namespace UsersMVC.Models
 {
     public class UserExceptions
-    {/*
+    {
         public UserExceptions()
         {
-            isEmpty = true;
+            isValid = true;
+            isUnique = true;
         }
-        */
-        public bool isEmpty;
+        
+        public bool isValid;
+        public bool isUnique;
 
         public string LoginException
         {
